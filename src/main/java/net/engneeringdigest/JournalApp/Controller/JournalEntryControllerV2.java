@@ -2,6 +2,7 @@ package net.engneeringdigest.JournalApp.Controller;
 
 import net.engneeringdigest.JournalApp.Entity.JournalEntry;
 import net.engneeringdigest.JournalApp.services.JournalEntryService;
+import net.engneeringdigest.JournalApp.services.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,8 @@ import java.util.*;
 public class JournalEntryControllerV2 {
    @Autowired
    private JournalEntryService journalEntryService;
+   @Autowired
+   private UserService userService;
    private Map<String, JournalEntry> journalEntries = new HashMap<>();
 
    @GetMapping ("/getAll")
@@ -31,8 +34,10 @@ public class JournalEntryControllerV2 {
    }
    @PostMapping ("postData")
    public boolean postData(@RequestBody JournalEntry myEntry) {
+
        myEntry.setDate(LocalDateTime.now());
        journalEntryService.saveJournalEntry(myEntry);
+       
         return true;
    }
     @GetMapping("id/{myId}")

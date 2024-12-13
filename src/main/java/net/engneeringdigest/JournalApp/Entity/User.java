@@ -27,7 +27,7 @@ public class User {
     public String password;
     @DBRef
     private List<JournalEntry> journalEntries= new ArrayList<>();
-
+    private List<String> roles;
     public void setDate(LocalDateTime now) {
     }
 }

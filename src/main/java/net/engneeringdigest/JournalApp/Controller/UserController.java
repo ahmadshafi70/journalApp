@@ -2,6 +2,8 @@ package net.engneeringdigest.JournalApp.Controller;
 
 import net.engneeringdigest.JournalApp.Entity.JournalEntry;
 import net.engneeringdigest.JournalApp.Entity.User;
+import net.engneeringdigest.JournalApp.repository.UserRepository;
+import net.engneeringdigest.JournalApp.services.WeatherService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import net.engneeringdigest.JournalApp.services.UserService;
@@ -20,46 +22,18 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
-
 public class UserController {
-   @Autowired
-   private UserService userService;
-   private Map<String, User> user = new HashMap<>();
 
-   @GetMapping ("/getAll")
-   public ResponseEntity<?> getAll() {
-       List<User> all=userService.getAllUser();
-       if (all != null && !all.isEmpty()) {
-           return new ResponseEntity<>(all, HttpStatus.OK);
-       }
-       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @Autowired
+    private UserService userService;
 
-   }
+    @Autowired
+    private UserRepository userRepository;
 
 
-    @PostMapping ("postData")
-   public boolean postData(@RequestBody User myUser) {
-       myUser.setDate(LocalDateTime.now());
-       userService.saveUser(myUser);
-        return true;
-   }
-    @GetMapping("id/{myId}")
-    public ResponseEntity<?> getById(@PathVariable ObjectId myId) {
-        Optional<User> User = userService.getById(myId);
 
-        // Check if the journal entry exists
-        if (User.isPresent()) {
-            return ResponseEntity.ok(User.get()); // Return 200 OK with the entry
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // Return 404 Not Found
-        }
-    }
-    @DeleteMapping("id/{myId}")
-    public boolean deleteById(@PathVariable ObjectId myId) {
-        userService.deleteById(myId);
-        return true;
-    }
-    @PutMapping("id/{Id}")
+
+    @PutMapping
     public ResponseEntity<?> updateUser(@RequestBody User user) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getName();
@@ -70,5 +44,20 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @DeleteMapping
+    public ResponseEntity<?> deleteUserById() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        userRepository.deleteByUserName(authentication.getName());
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> greeting() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        WeatherResponse weatherResponse = weatherService.getWeather("Mumbai");
+        String greeting = "";
+
+        return new ResponseEntity<>("Hi " + authentication.getName() + greeting, HttpStatus.OK);
+    }
 
 }

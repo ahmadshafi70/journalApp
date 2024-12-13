@@ -4,34 +4,58 @@ import net.engneeringdigest.JournalApp.Entity.User;
 import net.engneeringdigest.JournalApp.repository.UserRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 
 @Service
 public class UserService {
+
     @Autowired
     private UserRepository userRepository;
-    public List<User> getAllUser(){
+
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    public boolean saveNewUser(User user) {
+        try {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            user.setRoles(Arrays.asList("USER"));
+            userRepository.save(user);
+            return true;
+        } catch (Exception e) {
+
+            return false;
+        }
+    }
+
+    public void saveAdmin(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRoles(Arrays.asList("USER", "ADMIN"));
+        userRepository.save(user);
+    }
+
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
+
+    public List<User> getAll() {
         return userRepository.findAll();
     }
 
-    public Optional<User> getById(ObjectId id){
+    public Optional<User> findById(ObjectId id) {
         return userRepository.findById(id);
     }
-    public boolean deleteById(ObjectId id){
+
+    public void deleteById(ObjectId id) {
         userRepository.deleteById(id);
-        return true;
     }
-    public boolean updateById(ObjectId id){
-//        UserRepository.save(id);
-        return true;
-    }
-    public void saveUser(User user){
-        userRepository.save(user);
-     }
 
     public User findByUserName(String userName) {
         return userRepository.findByUserName(userName);
